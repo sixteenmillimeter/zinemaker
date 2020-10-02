@@ -1,0 +1,57 @@
+<!doctype html>
+<html>
+<head>
+</head>
+<body>
+	<div>
+		<p>Script for making simple 8 page 1 sheet zines.</p>
+
+		<p>Don't trust me? That's cool. You shouldn't. I'm just some person online. If you want to download and audit the code and then run it offline in some browser on a machine that's not connected to the internet; I encourage you.</p>
+
+		<p>
+			<ul>
+				<li> <a onclick="this.href='data:text/html;charset=UTF-8,'+encodeURIComponent(document.documentElement.outerHTML)" href="#" download="index.html">Download this page</a>
+				</li>
+				<li>
+					<a href="./zine.js" target="_blank">Download the javascript</a> (Save in same folder as index.html)
+				</li>
+				<li>
+					Run it in private 🥰
+				</li>
+			</ul>
+		</p>
+
+	</div>
+	<div>
+		<input name="filename" id="filename" placeholder="Zine Name" />
+	</div>
+	<div>
+		<b>DPI</b>
+		<select name="dpi" id="dpi" >
+			<option value="300">300</option>
+			<option value="600" selected="selected">600</option>
+			<option value="1200">1200</option>
+		</select>
+	</div>
+	<div>
+		<b>Paper</b>
+		<select name="paper" id="paper">
+			<option value="11x8.5" selected="selected">A4</option>
+			<option value="14x8.5">Legal</option>
+			<option value="17x11">Tabloid</option>
+		</select>
+	</div>
+	<div>
+		<button id="template" onclick="downloadTemplate();">Download Page Template</button>
+	</div>
+	<div>
+		<button id="create" onclick="main();">Create New Zine</button>
+	</div>
+	<div>Pages</div>
+	<div id="pages">
+
+	</div>
+
+	<script src="./zine.js"></script>
+</body>
+</html>
