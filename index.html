@@ -1,6 +1,14 @@
 <!DOCTYPE html>
 <html>
 <head>
+	<title>zinemaker</title>
+	<style>
+		#sheets img{
+			border: 1px solid rgb(180,180,180);
+			width: 100%;
+			height: auto;
+		}
+	</style>
 </head>
 <body>
 	<div>
@@ -19,6 +27,11 @@
 					Run it in private 🥰
 				</li>
 			</ul>
+		</p>
+
+		<p>
+			Combine all images into a pdf file.
+			<pre>convert "*.{png,jpeg}" -quality 100 outfile.pdf</pre>
 		</p>
 
 	</div>
@@ -57,6 +70,8 @@
 	<div>Pages</div>
 	<div id="pages">
 
+	</div>
+	<div id="sheets">
 	</div>
 
 	<script src="./zine.js"></script>

@@ -3,7 +3,7 @@ class Zine {
 		const x = paper.split('x')[0]
 		const y = paper.split('x')[1]
 
-		console.log(`Created new ${paper} zine @ ${dpi}`)
+		console.log(`Created new ${paper} ${type} zine @ ${dpi}`)
 
 		this.paper = paper
 		this.dpi = dpi
@@ -37,6 +37,7 @@ class Zine {
 		this.ctx.fillRect(0, 0, this.x, this.y)
 
 		this.pages = []
+		this.jpeg = null
 
 		this.positions = {
 			'single_page' : [
@@ -48,6 +49,12 @@ class Zine {
 				{ x : 0, y : 1 }, //6
 				{ x : 1, y : 1 }, //7
 				{ x : 2, y : 1 } //8 - Back
+			],
+			'half_page' : [
+				{ x : 0, y : 0 },
+				{ x : 1, y : 0 },
+				{ x : 0, y : 0 },
+				{ x : 1, y : 0 }
 			]
 		}
 
@@ -55,20 +62,41 @@ class Zine {
 	}
 	layoutPages () {
 		const pagesElement = document.getElementById('pages')
-		const pages = this.type === 'single_page' ? 8 : 0
+		const pages = this.type === 'single_page' ? 8 : 1
 		const div = document.createElement('div')
 		const button = document.createElement('button')
+		const add = document.createElement('button')
+		const br = document.createElement('br')
 
 		pagesElement.innerHTML = ''
-		button.innerText = 'Download Zine'
-		button.onclick = this.download.bind(this)
+
+		if (this.type === 'single_page') {
+			button.innerText = 'Download Zine'
+			button.onclick = this.download.bind(this)
+		} else if (this.type === 'half_page') {
+			button.innerText = 'Build Zine'
+			button.onclick = this.build.bind(this)
+		}
+
+		div.appendChild(button)
+
+		if (this.type === 'half_page') {
+			add.innerText = 'Add Page'
+			add.onclick = this.addPage.bind(this)
+			div.appendChild(br)
+			div.appendChild(add)
+		}
+
+		pagesElement.appendChild(div)
 
 		for (let i = 0; i < pages; i++) {
 			this.layoutPage(i)
-		}
-		div.appendChild(button)
+		}		
 
-		pagesElement.appendChild(div)
+	}
+	addPage () {
+		let pos = this.countPages()
+		this.layoutPage(pos)
 	}
 	layoutPage (i) {
 		const el = document.createElement('input')
@@ -80,9 +108,9 @@ class Zine {
 		el.setAttribute('id', `page_${i}`)
 		el.setAttribute('accept', 'image/x-png,image/jpeg');
 
-		if (i === 0) {
+		if (i === 0 && this.type === 'single_page') {
 			label.innerText = 'Front'
-		} else if (i === 7) {
+		} else if (i === 7 && this.type === 'single_page') {
 			label.innerText = 'Back'
 		} else {
 			label.innerText = `${i + 1}`
@@ -95,38 +123,115 @@ class Zine {
 	}
 
 	countPages () {
-
+		return document.querySelectorAll('input[type=file]').length
 	}
 
 	async build () {
-		const pages = this.type === 'single_page' ? 8 : this.countPages()
+		const sheetsEl = document.getElementById('sheets')
+		const br = document.createElement('br')
+		let totalPages = this.countPages()
+		let pages = this.type === 'single_page' ? 8 : 4
+		let sheets = this.type === 'single_page' ? 1 : 1
 		let cont
 		let page
 		let input
 		let url
-		for (let i = 0; i < pages; i++) {
-			input = document.getElementById(`page_${i}`)
-			page = input.value
-			if (page === null || page === '') {
-				if (typeof cont === 'undefined') {
-					cont = confirm(`Detected blank pages. Continue to build zine?`)
-					if (!cont) {
-						throw new Error('Blank pages, cancelling build')
+		let img
+		let count = 0
+		let pageAll = []
+		let pageMap = []
+		let halfPage = 0
+
+		if (this.type === 'half_page') {
+			totalPages = Math.round(Math.ceil(totalPages / 4) * 4)
+			sheets = Math.round(totalPages / 4) * 2 //front and back
+		}
+
+		sheetsEl.innerHTML = ''
+		if (this.type === 'single_page') {
+			for (let i = 0; i < pages; i++) {
+				input = document.getElementById(`page_${count}`)
+				if (input) {
+					page = input.value
+					if (page === null || page === '') {
+						if (typeof cont === 'undefined') {
+							cont = confirm(`Detected blank pages. Continue to build zine?`)
+							if (!cont) {
+								throw new Error('Blank pages, cancelling build')
+							}
+						}
+						continue
+					} else {
+						try {
+							url = await this.readFileAsURL(input)
+						} catch (err) {
+							throw err
+						}
+						try {
+							await this.drawOnCanvas(this.positions[this.type][i], url)
+						} catch (err) {
+							throw err
+						}
 					}
 				}
-				continue
-			} else {
-				try {
-					url = await this.readFileAsURL(input)
-				} catch (err) {
-					throw err
+				count++
+			}
+			img = document.createElement('img')
+			this.jpeg = this.canvas.toDataURL('image/jpg')
+			img.src = this.jpeg
+			sheetsEl.appendChild(br)
+			sheetsEl.appendChild(img)
+		} else if (this.type === 'half_page') {
+			for (let i = 0; i < totalPages; i++) {
+				pageAll.push(i)
+			}
+
+			for (let i = 0; i < totalPages; i++) {
+				if (halfPage === 1 || halfPage === 3) {
+					pageAll.reverse()
 				}
-				try {
-					await this.drawOnCanvas(this.positions[this.type][i], url)
-				} catch (err) {
-					throw err
+				pageMap.push(pageAll.pop())
+				halfPage++
+				if (halfPage > 3) {
+					halfPage = 0
 				}
 			}
+			for (let x = 0; x < sheets; x++) {
+				this.ctx.fillRect(0, 0, this.x, this.y)
+				for (let i = 0; i < pages; i++) {
+					input = document.getElementById(`page_${pageMap[count]}`)
+					if (input) {
+						page = input.value
+						if (page === null || page === '') {
+							if (typeof cont === 'undefined') {
+								cont = confirm(`Detected blank pages. Continue to build zine?`)
+								if (!cont) {
+									throw new Error('Blank pages, cancelling build')
+								}
+							}
+							continue
+						} else {
+							try {
+								url = await this.readFileAsURL(input)
+							} catch (err) {
+								throw err
+							}
+							try {
+								await this.drawOnCanvas(this.positions[this.type][i], url)
+							} catch (err) {
+								throw err
+							}
+						}
+					}
+					count++
+				}
+				img = document.createElement('img')
+				this.jpeg = this.canvas.toDataURL('image/jpg')
+				img.src = this.jpeg
+				sheetsEl.appendChild(br)
+				sheetsEl.appendChild(img)
+			}
+
 		}
 
 		//draw lines
@@ -252,10 +357,12 @@ function downloadTemplate () {
 let zine
 
 function main () {
+	const eType = document.getElementById('type')
 	const eDpi = document.getElementById('dpi')
 	const ePaper = document.getElementById('paper')
+	const type = eType.options[eType.selectedIndex].value
 	const dpi = eDpi.options[eDpi.selectedIndex].value
 	const paper = ePaper.options[ePaper.selectedIndex].value
 
-	zine = new Zine('single_page', dpi, paper)
+	zine = new Zine(type, dpi, paper)
 }
