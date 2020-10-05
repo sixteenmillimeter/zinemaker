@@ -18,8 +18,14 @@ class Zine {
 		this.x = parseFloat(x) * dpi
 		this.y = parseFloat(y) * dpi
 
-		this.xPage = this.x / 4
-		this.yPage = this.y / 2
+
+		if (this.type === 'single_page') {
+			this.xPage = this.x / 4
+			this.yPage = this.y / 2
+		} else {
+			this.xPage = this.x / 2
+			this.yPage = this.y
+		}
 
 		this.canvas = document.createElement('canvas')
 		this.canvas.width  = this.x
@@ -32,16 +38,18 @@ class Zine {
 
 		this.pages = []
 
-		this.positions = [
-			{ x : 3, y : 1 }, //1 - Front
-			{ x : -4, y : -1, flip : true }, //2
-			{ x : -3, y : -1, flip : true }, //3
-			{ x : -2, y : -1, flip : true }, //4
-			{ x : -1, y : -1, flip : true }, //5
-			{ x : 0, y : 1 }, //6
-			{ x : 1, y : 1 }, //7
-			{ x : 2, y : 1 } //8 - Back
-		]
+		this.positions = {
+			'single_page' : [
+				{ x : 3, y : 1 }, //1 - Front
+				{ x : -4, y : -1, flip : true }, //2
+				{ x : -3, y : -1, flip : true }, //3
+				{ x : -2, y : -1, flip : true }, //4
+				{ x : -1, y : -1, flip : true }, //5
+				{ x : 0, y : 1 }, //6
+				{ x : 1, y : 1 }, //7
+				{ x : 2, y : 1 } //8 - Back
+			]
+		}
 
 		this.layoutPages()
 	}
@@ -85,8 +93,13 @@ class Zine {
 		
 		pages.appendChild(div)
 	}
+
+	countPages () {
+
+	}
+
 	async build () {
-		const pages = this.type === 'single_page' ? 8 : 0
+		const pages = this.type === 'single_page' ? 8 : this.countPages()
 		let cont
 		let page
 		let input
@@ -109,7 +122,7 @@ class Zine {
 					throw err
 				}
 				try {
-					await this.drawOnCanvas(this.positions[i], url)
+					await this.drawOnCanvas(this.positions[this.type][i], url)
 				} catch (err) {
 					throw err
 				}
@@ -193,15 +206,23 @@ class Zine {
 	}
 }
 
-function template (dpi = 300, paper = '11x8.5') {
+function template (type = 'single_page', dpi = 300, paper = '11x8.5') {
 	const x = paper.split('x')[0]
 	const y = paper.split('x')[1]
-	const width = parseFloat(x) * dpi / 4
-	const height = parseFloat(y) * dpi / 2
 	const canvas = document.createElement('canvas')
 	const ctx = canvas.getContext('2d')
 	const link = document.createElement('a')
+	let width
+	let height
 	let image
+
+	if (type === 'single_page') {
+		width = parseFloat(x) * dpi / 4
+		height = parseFloat(y) * dpi / 2
+	} else {
+		width = parseFloat(x) * dpi / 2
+		height = parseFloat(y) * dpi
+	}
 
 	canvas.width  = width
 	canvas.height = height
@@ -218,12 +239,14 @@ function template (dpi = 300, paper = '11x8.5') {
 }
 
 function downloadTemplate () {
+	const eType = document.getElementById('type')
 	const eDpi = document.getElementById('dpi')
 	const ePaper = document.getElementById('paper')
+	const type = eType.options[eType.selectedIndex].value
 	const dpi = eDpi.options[eDpi.selectedIndex].value
 	const paper = ePaper.options[ePaper.selectedIndex].value
 
-	template(dpi, paper)
+	template(type, dpi, paper)
 }
 
 let zine
