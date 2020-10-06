@@ -1,0 +1,41 @@
+html,body{
+	margin: 0;
+	padding: 0;
+	overflow: hidden;
+	background: black;
+}
+#zinemaker {
+	position:relative;
+	width: 98%;
+    height: 100vh;
+    margin: 0 auto;
+}
+#zinemaker .window-wrapper{
+	overflow-y: scroll;
+	height: 98vh;
+}
+#zinemaker .overlay{
+	display: none;
+	pointer-events: none;
+}
+#zinemaker.highlight .overlay{
+	background: rgba(0, 0, 0, 0.4);
+	display: block;
+	position: absolute;
+	top: 0;
+	left: 0;
+	right: 0;
+	bottom: 0;
+}
+#sheets{
+	min-height: 200px;
+}
+#sheets img{
+	border: 1px solid rgb(180,180,180);
+	width: 100%;
+	height: auto;
+}
+.field-row label{
+	width: 60px;
+	text-align: right;
+}
