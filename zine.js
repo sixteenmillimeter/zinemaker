@@ -495,6 +495,7 @@ function dragndrop () {
 			file = [...files].find( el => el.name === name)
 			
 			input = document.getElementById(`page_${count}`)
+
 			if (!input && zine.type === 'half_page') {
 				zine.addPage(count)
 				input = document.getElementById(`page_${count}`)
@@ -504,8 +505,6 @@ function dragndrop () {
 				dataTransfer = new DataTransfer()
 				dataTransfer.items.add(file)
 				input.files = dataTransfer.files
-			} else {
-
 			}
 
 			count++
