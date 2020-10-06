@@ -4,6 +4,22 @@
 	<title>zinemaker</title>
 	<link rel="stylesheet" href="https://unpkg.com/98.css" />
 	<style>
+		#zinemaker {
+			position:relative;
+		}
+		#zinemaker .overlay{
+			display: none;
+			pointer-events: none;
+		}
+		#zinemaker.highlight .overlay{
+			background: rgba(0, 0, 0, 0.4);
+			display: block;
+			position: absolute;
+			top: 0;
+			left: 0;
+			right: 0;
+			bottom: 0;
+		}
 		#sheets img{
 			border: 1px solid rgb(180,180,180);
 			width: 100%;
@@ -40,7 +56,7 @@
 		</p>
 
 	</div>
-	<div class="window" style="width: 100%">
+	<div id="zinemaker" class="window" style="width: 100%">
 		<div class="title-bar">
 			<div class="title-bar-text">zinemaker</div>
 			<div class="title-bar-controls">
@@ -60,7 +76,7 @@
 					<label>Type</label>
 					<select name="type" id="type" >
 						<option value="single_page" selected="selected">Single Sheet, 8 Page Mini Zine</option>
-						<option value="half_page" >Multi Sheet, Abitrary Length</option>
+						<option value="half_page" >Half Sheet, Abitrary Length</option>
 					</select>
 				</div>
 				<div class="field-row">
@@ -101,8 +117,8 @@
 					</div>
 				</ul>
 			</fieldset>
-
 		</div>
+		<div class="overlay"></div>
 	</div>
 
 	<script src="./zine.js"></script>

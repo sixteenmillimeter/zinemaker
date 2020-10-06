@@ -400,3 +400,119 @@ function downloadPage (id) {
 	link.href = url
 	link.click()
 }
+
+function preventDefaults (e) {
+	e.preventDefault()
+	e.stopPropagation()
+}
+
+function createFileList (file) {
+	const fileList = new FileList()
+	fileList[0] = file
+	fileList.item = index => fileList[index]
+	return fileList
+}
+
+function dragndrop () {
+	const dropArea = document.getElementById('zinemaker')
+
+	;['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+		dropArea.addEventListener(eventName, preventDefaults, false)
+	})
+
+	;['dragenter', 'dragover'].forEach(eventName => {
+		dropArea.addEventListener(eventName, highlight, false)
+	})
+
+	;['dragleave', 'drop'].forEach(eventName => {
+		dropArea.addEventListener(eventName, unhighlight, false)
+	})
+
+	dropArea.addEventListener('drop', handleDrop, false)
+
+	function highlight(e) {
+		dropArea.classList.add('highlight')
+	}
+
+	function unhighlight(e) {
+		dropArea.classList.remove('highlight')
+	}
+
+	function handleDrop(e) {
+	  const dt = e.dataTransfer
+	  const files = dt.files
+	  unhighlight()
+	  handleFiles(files)
+	}
+
+	function handleFiles (files) {
+		const fileNames = []
+		let cont = false
+		let file
+		let len
+		let count = 0
+		let currentPages
+		let input
+		let page
+		let dataTransfer
+		for (let file of files) {
+			fileNames.push(file.name)
+		}
+		
+		fileNames.sort()
+
+		len = files.length
+
+		console.log(`files: ${len}`)
+
+		if (!zine) {
+			main()
+		}
+
+		if (len > 8 && zine.type === 'single_page') {
+			cont = confirm(`You've included ${len} pages for an 8 page mini zine, continue?`)
+			if (!cont) {
+				return false
+			}
+		}
+
+		currentPages = zine.countPages()
+
+		for (let i = 0; i < currentPages.length; i++) {
+			input = document.getElementById(`page_${count}`)
+			if (input) {
+				page = input.value
+				if (page === null || page === '') {
+					//empty
+				} else {
+					count = i + 1
+				}
+			}
+
+		}
+
+		for (let name of fileNames) {
+			file = [...files].find( el => el.name === name)
+			
+			input = document.getElementById(`page_${count}`)
+			if (!input && zine.type === 'half_page') {
+				zine.addPage(count)
+				input = document.getElementById(`page_${count}`)
+			}
+
+			if (input) {
+				dataTransfer = new DataTransfer()
+				dataTransfer.items.add(file)
+				input.files = dataTransfer.files
+			} else {
+
+			}
+
+			count++
+		}
+	}
+}
+
+(function () {
+	dragndrop()
+})()
