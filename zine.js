@@ -66,13 +66,22 @@ class Zine {
 	}
 	layoutPages () {
 		const pagesElement = document.getElementById('pages')
+		const actionElement = document.getElementById('action')
 		const pages = this.type === 'single_page' ? 8 : 4
 		const div = document.createElement('div')
 		const button = document.createElement('button')
 		const add = document.createElement('button')
 		const br = document.createElement('br')
 
+
 		pagesElement.innerHTML = ''
+		actionElement.innerHTML = ''
+
+		if (this.type === 'half_page') {
+			add.innerText = 'Add Page'
+			add.onclick = this.addPage.bind(this)
+			actionElement.appendChild(add)
+		}
 
 		if (this.type === 'single_page') {
 			button.innerText = 'Download Zine'
@@ -82,15 +91,7 @@ class Zine {
 			button.onclick = this.build.bind(this)
 		}
 
-		div.appendChild(button)
-
-		if (this.type === 'half_page') {
-			add.innerText = 'Add Page'
-			add.onclick = this.addPage.bind(this)
-			div.appendChild(br)
-			div.appendChild(add)
-		}
-
+		actionElement.appendChild(button)
 		pagesElement.appendChild(div)
 
 		for (let i = 0; i < pages; i++) {
@@ -105,8 +106,10 @@ class Zine {
 	layoutPage (i) {
 		const el = document.createElement('input')
 		const div = document.createElement('div')
-		const label = document.createElement('b')
+		const label = document.createElement('label')
 		const pages = document.getElementById('pages')
+
+		div.classList.add('field-row')
 
 		el.setAttribute('type', 'file')
 		el.setAttribute('id', `page_${i}`)

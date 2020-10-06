@@ -9,6 +9,10 @@
 			width: 100%;
 			height: auto;
 		}
+		.field-row label{
+			width: 60px;
+			text-align: right;
+		}
 	</style>
 </head>
 <body>
@@ -46,44 +50,58 @@
 			</div>
 		</div>
 		<div class="window-body">
-			<div>
-				<input name="filename" id="filename" placeholder="Zine Name" />
-			</div>
-			<div class="field-row">
-				<label>Type</label>
-				<select name="type" id="type" >
-					<option value="single_page" selected="selected">Single Sheet, 8 Page Mini Zine</option>
-					<option value="half_page" >Multi Sheet, Abitrary Length</option>
-				</select>
-			</div>
-			<div class="field-row">
-				<label>DPI</label>
-				<select name="dpi" id="dpi" >
-					<option value="300">300</option>
-					<option value="600" selected="selected">600</option>
-					<option value="1200">1200</option>
-				</select>
-			</div>
-			<div class="field-row">
-				<label>Paper</label>
-				<select name="paper" id="paper">
-					<option value="11x8.5" selected="selected">A4</option>
-					<option value="14x8.5">Legal</option>
-					<option value="17x11">Tabloid</option>
-				</select>
-			</div>
-			<div>
-				<button id="template" onclick="downloadTemplate();">Download Page Template</button>
-			</div>
-			<div>
-				<button id="create" onclick="main();">Create New Zine</button>
-			</div>
-			<div>Pages</div>
-			<div id="pages">
+			<fieldset>
+				<legend>Settings</legend>
+				<div class="field-row">
+					<label>Name</label>
+					<input name="filename" id="filename" placeholder="Zine Name" />
+				</div>
+				<div class="field-row">
+					<label>Type</label>
+					<select name="type" id="type" >
+						<option value="single_page" selected="selected">Single Sheet, 8 Page Mini Zine</option>
+						<option value="half_page" >Multi Sheet, Abitrary Length</option>
+					</select>
+				</div>
+				<div class="field-row">
+					<label>Paper</label>
+					<select name="paper" id="paper">
+						<option value="11x8.5" selected="selected">US Letter</option>
+						<option value="14x8.5">Legal</option>
+						<option value="17x11">Tabloid</option>
+					</select>
+				</div>
+				<div class="field-row">
+					<label>DPI</label>
+					<select name="dpi" id="dpi" >
+						<option value="300">300</option>
+						<option value="600" selected="selected">600</option>
+						<option value="1200">1200</option>
+					</select>
+				</div>
+			</fieldset>
+			<fieldset>
+				<legend>Actions</legend>
+				<div>
+					<button id="create" onclick="main();">Create New Zine</button>
+					<button id="template" onclick="downloadTemplate();">Download Page Template</button>
+					<span id="action"></span>
+				</div>
+			</fieldset>
+			<fieldset>
+				<legend>Pages</legend>
+				<div id="pages">
 
-			</div>
-			<div id="sheets">
-			</div>
+				</div>
+			</fieldset>
+			<fieldset>
+				<legend>Sheets</legend>
+				<ul class="tree-view">
+					<div id="sheets">
+					</div>
+				</ul>
+			</fieldset>
+
 		</div>
 	</div>
 
