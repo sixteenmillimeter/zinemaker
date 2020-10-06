@@ -51,10 +51,14 @@ class Zine {
 				{ x : 2, y : 1 } //8 - Back
 			],
 			'half_page' : [
-				{ x : 0, y : 0 },
-				{ x : 1, y : 0 },
-				{ x : 0, y : 0 },
-				{ x : 1, y : 0 }
+				[
+					{ x : 0, y : 0 },
+					{ x : 1, y : 0 }
+				],
+				[
+					{ x : -2, y : -1, flip : true },
+					{ x : -1, y : -1, flip : true }
+				]
 			]
 		}
 
@@ -62,7 +66,7 @@ class Zine {
 	}
 	layoutPages () {
 		const pagesElement = document.getElementById('pages')
-		const pages = this.type === 'single_page' ? 8 : 1
+		const pages = this.type === 'single_page' ? 8 : 4
 		const div = document.createElement('div')
 		const button = document.createElement('button')
 		const add = document.createElement('button')
@@ -141,16 +145,21 @@ class Zine {
 		let pageAll = []
 		let pageMap = []
 		let halfPage = 0
+		let link
+		let side = 0
 
 		if (this.type === 'half_page') {
 			totalPages = Math.round(Math.ceil(totalPages / 4) * 4)
 			sheets = Math.round(totalPages / 4) * 2 //front and back
 		}
-
+		console.log(`sheets: ${sheets}`)
 		sheetsEl.innerHTML = ''
+
 		if (this.type === 'single_page') {
 			for (let i = 0; i < pages; i++) {
+				console.log(`page_${count}`)
 				input = document.getElementById(`page_${count}`)
+				count++
 				if (input) {
 					page = input.value
 					if (page === null || page === '') {
@@ -174,11 +183,15 @@ class Zine {
 						}
 					}
 				}
-				count++
 			}
+			link = document.createElement('button')
 			img = document.createElement('img')
 			this.jpeg = this.canvas.toDataURL('image/jpg')
+			img.id = `img_0`
 			img.src = this.jpeg
+			link.onclick = function () { downloadPage(`img_0`) }
+			link.innerText = `Download page 0`
+			sheetsEl.appendChild(link)
 			sheetsEl.appendChild(br)
 			sheetsEl.appendChild(img)
 		} else if (this.type === 'half_page') {
@@ -197,9 +210,13 @@ class Zine {
 				}
 			}
 			for (let x = 0; x < sheets; x++) {
+				//reset to white
 				this.ctx.fillRect(0, 0, this.x, this.y)
-				for (let i = 0; i < pages; i++) {
+				side = x % 2 
+				for (let i = 0; i < pages / 2; i++) {
+					console.log(`page_${pageMap[count]}`)
 					input = document.getElementById(`page_${pageMap[count]}`)
+					count++
 					if (input) {
 						page = input.value
 						if (page === null || page === '') {
@@ -217,21 +234,24 @@ class Zine {
 								throw err
 							}
 							try {
-								await this.drawOnCanvas(this.positions[this.type][i], url)
+								await this.drawOnCanvas(this.positions[this.type][side][i], url)
 							} catch (err) {
 								throw err
 							}
 						}
 					}
-					count++
 				}
+				link = document.createElement('button')
 				img = document.createElement('img')
+				img.id = `img_${x}`
 				this.jpeg = this.canvas.toDataURL('image/jpg')
 				img.src = this.jpeg
+				link.onclick = function () { downloadPage(`img_${x}`) }
+				link.innerText = `Download page ${x}`
+				sheetsEl.appendChild(link)
 				sheetsEl.appendChild(br)
 				sheetsEl.appendChild(img)
 			}
-
 		}
 
 		//draw lines
@@ -257,8 +277,8 @@ class Zine {
 
 		image = this.canvas.toDataURL('image/jpg')
 
-		link.download = `${this.name}_${this.paper}_${this.dpi}dpi.jpg`
-		link.target = '_blank'
+		link.download = `${this.name}_${this.type}_${this.paper}_${this.dpi}dpi.jpg`
+
 		link.href = image
 		link.click()
 	}
@@ -365,4 +385,15 @@ function main () {
 	const paper = ePaper.options[ePaper.selectedIndex].value
 
 	zine = new Zine(type, dpi, paper)
+}
+
+function downloadPage (id) {
+	const img = document.getElementById(id)
+	const link = document.createElement('a')
+
+	url = img.src
+
+	link.download = `${zine.name}_${zine.type}_${zine.paper}_${zine.dpi}dpi_${id}.jpg`
+	link.href = url
+	link.click()
 }
