@@ -1,5 +1,5 @@
 class Zine {
-	constructor (type = 'single_page', dpi = 300, paper = '11x8.5') {
+	constructor (type = 'single_page', dpi = 300, paper = '11x8.5', filetype = 'image/png') {
 		const x = paper.split('x')[0]
 		const y = paper.split('x')[1]
 
@@ -7,6 +7,8 @@ class Zine {
 
 		this.paper = paper
 		this.dpi = dpi
+		this.filetype = filetype
+		this.ext = filetype === 'image/jpeg' ? 'jpg' : 'png'
 		this.name = document.getElementById('filename').value
 
 		if (this.name === '') {
@@ -37,7 +39,7 @@ class Zine {
 		this.ctx.fillRect(0, 0, this.x, this.y)
 
 		this.pages = []
-		this.jpeg = null
+		this.image = null
 
 		this.positions = {
 			'single_page' : [
@@ -69,10 +71,10 @@ class Zine {
 		const actionElement = document.getElementById('action')
 		const pages = this.type === 'single_page' ? 8 : 4
 		const div = document.createElement('div')
-		const button = document.createElement('button')
+		const build = document.createElement('button')
+		const download = document.createElement('button')
 		const add = document.createElement('button')
 		const br = document.createElement('br')
-
 
 		pagesElement.innerHTML = ''
 		actionElement.innerHTML = ''
@@ -83,15 +85,19 @@ class Zine {
 			actionElement.appendChild(add)
 		}
 
-		if (this.type === 'single_page') {
-			button.innerText = 'Download Zine'
-			button.onclick = this.download.bind(this)
-		} else if (this.type === 'half_page') {
-			button.innerText = 'Build Zine'
-			button.onclick = this.build.bind(this)
-		}
+		build.innerText = 'Build Zine'
+		build.onclick = this.build.bind(this)
+		actionElement.appendChild(build)
 
-		actionElement.appendChild(button)
+		if (this.type === 'single_page') {
+			download.innerText = `Download Zine [${this.ext.toUpperCase()}]`
+			download.onclick = this.download.bind(this)
+		} else if (this.type === 'half_page') {
+			download.innerText = 'Download Zine [PDF]'
+			download.onclick = this.downloadPDF.bind(this)
+		}
+		actionElement.appendChild(download)
+
 		pagesElement.appendChild(div)
 
 		for (let i = 0; i < pages; i++) {
@@ -189,9 +195,9 @@ class Zine {
 			}
 			link = document.createElement('button')
 			img = document.createElement('img')
-			this.jpeg = this.canvas.toDataURL('image/jpg')
+			this.image = this.canvas.toDataURL(this.filetype)
 			img.id = `img_0`
-			img.src = this.jpeg
+			img.src = this.image
 			link.onclick = function () { downloadPage(`img_0`) }
 			link.innerText = `Download page 0`
 			sheetsEl.appendChild(link)
@@ -247,8 +253,8 @@ class Zine {
 				link = document.createElement('button')
 				img = document.createElement('img')
 				img.id = `img_${x}`
-				this.jpeg = this.canvas.toDataURL('image/jpg')
-				img.src = this.jpeg
+				this.image = this.canvas.toDataURL(this.filetype)
+				img.src = this.image
 				link.onclick = function () { downloadPage(`img_${x}`) }
 				link.innerText = `Download page ${x}`
 				sheetsEl.appendChild(link)
@@ -278,12 +284,28 @@ class Zine {
 			return false
 		}
 
-		image = this.canvas.toDataURL('image/jpg')
+		image = this.canvas.toDataURL(this.type)
 
-		link.download = `${this.name}_${this.type}_${this.paper}_${this.dpi}dpi.jpg`
+		link.download = `${this.name}_${this.type}_${this.paper}_${this.dpi}dpi.${this.ext}`
 
 		link.href = image
 		link.click()
+	}
+
+	downloadPDF () {
+		const options = {
+			orientation : 'landscape',
+			unit : 'px',
+			format : [this.x, this.y]
+		}
+		const pdf = new jsPDF(options)
+		const elements = document.querySelectorAll('#sheets img')
+
+		for (let elem of elements) {
+			//pdf.addPage([this.x, this.y], 'landscape')
+		}
+
+		pdf.output('datauri')		
 	}
 
 	async readFileAsURL (input) {
@@ -334,12 +356,13 @@ class Zine {
 	}
 }
 
-function template (type = 'single_page', dpi = 300, paper = '11x8.5') {
+function template (type = 'single_page', dpi = 300, paper = '11x8.5', filetype = 'image/png') {
 	const x = paper.split('x')[0]
 	const y = paper.split('x')[1]
 	const canvas = document.createElement('canvas')
 	const ctx = canvas.getContext('2d')
 	const link = document.createElement('a')
+	const ext = filetype === 'image/jpeg' ? 'jpg' : 'png'
 	let width
 	let height
 	let image
@@ -359,9 +382,9 @@ function template (type = 'single_page', dpi = 300, paper = '11x8.5') {
 	ctx.fillStyle = 'white'
 	ctx.fillRect(0, 0, canvas.width, canvas.height)
 
-  	image = canvas.toDataURL('image/jpg')
+  	image = canvas.toDataURL(filetype)
 
-	link.download = `zine_page_template_${paper}_${dpi}dpi.jpg`
+	link.download = `zine_page_template_${paper}_${dpi}dpi.${ext}`
 	link.href = image
 	link.click()
 }
@@ -370,11 +393,13 @@ function downloadTemplate () {
 	const eType = document.getElementById('type')
 	const eDpi = document.getElementById('dpi')
 	const ePaper = document.getElementById('paper')
+	const eFiletype = document.getElementById('filetype')
 	const type = eType.options[eType.selectedIndex].value
 	const dpi = eDpi.options[eDpi.selectedIndex].value
 	const paper = ePaper.options[ePaper.selectedIndex].value
+	const filetype = eFiletype.options[eFiletype.selectedIndex].value
 
-	template(type, dpi, paper)
+	template(type, dpi, paper, filetype)
 }
 
 let zine
@@ -383,11 +408,13 @@ function main () {
 	const eType = document.getElementById('type')
 	const eDpi = document.getElementById('dpi')
 	const ePaper = document.getElementById('paper')
+	const eFiletype = document.getElementById('filetype')
 	const type = eType.options[eType.selectedIndex].value
 	const dpi = eDpi.options[eDpi.selectedIndex].value
 	const paper = ePaper.options[ePaper.selectedIndex].value
+	const filetype = eFiletype.options[eFiletype.selectedIndex].value
 
-	zine = new Zine(type, dpi, paper)
+	zine = new Zine(type, dpi, paper, filetype)
 }
 
 function downloadPage (id) {
@@ -396,7 +423,7 @@ function downloadPage (id) {
 
 	url = img.src
 
-	link.download = `${zine.name}_${zine.type}_${zine.paper}_${zine.dpi}dpi_${id}.jpg`
+	link.download = `${zine.name}_${zine.type}_${zine.paper}_${zine.dpi}dpi_${id}.${zine.ext}`
 	link.href = url
 	link.click()
 }
