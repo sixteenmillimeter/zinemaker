@@ -6,13 +6,20 @@ html,body{
 }
 #zinemaker {
 	position:relative;
-	width: 98%;
+	width: -moz-calc(100vw - 5px);
+	width: -webkit-calc(100vw - 5px);
+	width: -o-calc(100vw - 5px);
+	width: calc(100vw - 5px);
     height: 100vh;
     margin: 0 auto;
 }
 #zinemaker .window-wrapper{
 	overflow-y: scroll;
-	height: 98vh;
+	/* Firefox */
+	height: -moz-calc(100vh - 14px - 9px);
+	height: -webkit-calc(100vh - 14px - 9px);
+	height: -o-calc(100vh - 14px - 9px);
+	height: calc(100vh - 14px - 9px);
 }
 #zinemaker .overlay{
 	display: none;
