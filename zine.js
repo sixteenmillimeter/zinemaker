@@ -421,21 +421,6 @@ function downloadTemplate () {
 	template(type, dpi, paper, filetype)
 }
 
-let zine
-
-function main () {
-	const eType = document.getElementById('type')
-	const eDpi = document.getElementById('dpi')
-	const ePaper = document.getElementById('paper')
-	const eFiletype = document.getElementById('filetype')
-	const type = eType.options[eType.selectedIndex].value
-	const dpi = eDpi.options[eDpi.selectedIndex].value
-	const paper = ePaper.options[ePaper.selectedIndex].value
-	const filetype = eFiletype.options[eFiletype.selectedIndex].value
-
-	zine = new Zine(type, dpi, paper, filetype)
-}
-
 function downloadPage (id) {
 	const img = document.getElementById(id)
 	const link = document.createElement('a')
@@ -447,11 +432,6 @@ function downloadPage (id) {
 	link.click()
 }
 
-function preventDefaults (e) {
-	e.preventDefault()
-	e.stopPropagation()
-}
-
 function createFileList (file) {
 	const fileList = new FileList()
 	fileList[0] = file
@@ -461,6 +441,12 @@ function createFileList (file) {
 
 function dragndrop () {
 	const dropArea = document.getElementById('zinemaker')
+
+	function preventDefaults (e) {
+		e.preventDefault()
+		e.stopPropagation()
+	}
+
 
 	;['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
 		dropArea.addEventListener(eventName, preventDefaults, false)
@@ -558,6 +544,22 @@ function dragndrop () {
 	}
 }
 
+let zine
+
+function main () {
+	const eType = document.getElementById('type')
+	const eDpi = document.getElementById('dpi')
+	const ePaper = document.getElementById('paper')
+	const eFiletype = document.getElementById('filetype')
+	const type = eType.options[eType.selectedIndex].value
+	const dpi = eDpi.options[eDpi.selectedIndex].value
+	const paper = ePaper.options[ePaper.selectedIndex].value
+	const filetype = eFiletype.options[eFiletype.selectedIndex].value
+
+	zine = new Zine(type, dpi, paper, filetype)
+}
+
 (function () {
 	dragndrop()
+
 })()
