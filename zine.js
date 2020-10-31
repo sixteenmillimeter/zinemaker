@@ -1,7 +1,10 @@
+const { jsPDF } = window.jspdf
+
 class Zine {
 	constructor (type = 'single_page', dpi = 300, paper = '11x8.5', filetype = 'image/png') {
-		const x = paper.split('x')[0]
-		const y = paper.split('x')[1]
+		const parts = paper.split('x')
+		const x = parts[0]
+		const y = parts[1]
 
 		console.log(`Created new ${paper} ${type} zine @ ${dpi}`)
 
@@ -73,6 +76,7 @@ class Zine {
 		const div = document.createElement('div')
 		const build = document.createElement('button')
 		const download = document.createElement('button')
+		const pdf = document.createElement('button')
 		const add = document.createElement('button')
 		const br = document.createElement('br')
 
@@ -89,15 +93,13 @@ class Zine {
 		build.onclick = this.build.bind(this)
 		actionElement.appendChild(build)
 
-		if (this.type === 'single_page') {
-			download.innerText = `Download Zine [${this.ext.toUpperCase()}]`
-			download.onclick = this.download.bind(this)
-		} else if (this.type === 'half_page') {
-			download.innerText = 'Download Zine [PDF]'
-			download.onclick = this.downloadPDF.bind(this)
-		}
-		actionElement.appendChild(download)
+		download.innerText = `Download Zine [${this.ext.toUpperCase()}]`
+		download.onclick = this.download.bind(this)
+		pdf.innerText = 'Download Zine [PDF]'
+		pdf.onclick = this.downloadPDF.bind(this)
 
+		actionElement.appendChild(download)
+		actionElement.appendChild(pdf)
 		pagesElement.appendChild(div)
 
 		for (let i = 0; i < pages; i++) {
@@ -292,20 +294,37 @@ class Zine {
 		link.click()
 	}
 
-	downloadPDF () {
+	async downloadPDF () {
 		const options = {
 			orientation : 'landscape',
 			unit : 'px',
 			format : [this.x, this.y]
 		}
+		const link = document.createElement('a')
 		const pdf = new jsPDF(options)
 		const elements = document.querySelectorAll('#sheets img')
+		const type = this.ext === 'jpg' ? 'JPEG' : 'PNG'
+		let datauri
 
-		for (let elem of elements) {
-			//pdf.addPage([this.x, this.y], 'landscape')
+		try {
+			await this.build()
+		} catch (err) {
+			console.error(err)
+			alert(`Error building zine`)
+			return false
 		}
 
-		pdf.output('datauri')		
+		for (let elem of elements) {
+			imgData = element.src
+			pdf.addPage([this.x, this.y], 'landscape')
+			pdf.addImage(imgData, type, 0, 0, this.x, this.y)
+		}
+
+		datauri = pdf.output('datauristring')
+		link.download = `${this.name}_${this.type}_${this.paper}_${this.dpi}dpi.pdf`
+		link.href = datauri
+
+		link.click()
 	}
 
 	async readFileAsURL (input) {
