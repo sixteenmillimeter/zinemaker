@@ -27,3 +27,9 @@ For half-page zines, combine all images into a pdf file using [ImageMagick](http
 ```bash
 convert "*.{png,jpg,jpeg}" -quality 100 outfile.pdf
 ```
+
+
+#### Cool links
+
+* [LaTeX template for a single-sheet zine](https://github.com/polychora-org/8up-zine)
+* [LaTeX template for creating a zine](https://github.com/wasv/zine-template)
