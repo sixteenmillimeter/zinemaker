@@ -1,4 +1,5 @@
 const { jsPDF } = window.jspdf
+let zine
 
 class Zine {
 	constructor (type = 'single_page', dpi = 300, paper = '11x8.5', filetype = 'image/png') {
@@ -11,7 +12,7 @@ class Zine {
 		this.paper = paper
 		this.dpi = dpi
 		this.filetype = filetype
-		this.ext = filetype === 'image/jpeg' ? 'jpg' : 'png'
+		this.ext = this.filetype === 'image/jpeg' ? 'jpg' : 'png'
 		this.name = document.getElementById('filename').value
 
 		if (this.name === '') {
@@ -41,7 +42,7 @@ class Zine {
 		this.ctx.fillStyle = 'white'
 		this.ctx.fillRect(0, 0, this.x, this.y)
 
-		this.pages = []
+		this.sheets = []
 		this.image = null
 
 		this.positions = {
@@ -141,7 +142,15 @@ class Zine {
 		return document.querySelectorAll('input[type=file]').length
 	}
 
-	async build () {
+	async waitForImgLoad (img) {
+		return new Promise((resolve, reject) => {
+			img.onload = function() { 
+				return resolve()
+			}
+		})
+	}
+
+	async build (forPdf = false) {
 		const sheetsEl = document.getElementById('sheets')
 		const br = document.createElement('br')
 		let totalPages = this.countPages()
@@ -158,13 +167,17 @@ class Zine {
 		let halfPage = 0
 		let link
 		let side = 0
+		let imgAwaiter
+		let sheetData
 
 		if (this.type === 'half_page') {
 			totalPages = Math.round(Math.ceil(totalPages / 4) * 4)
 			sheets = Math.round(totalPages / 4) * 2 //front and back
 		}
+
 		console.log(`sheets: ${sheets}`)
 		sheetsEl.innerHTML = ''
+		this.sheets = []
 
 		if (this.type === 'single_page') {
 			for (let i = 0; i < pages; i++) {
@@ -197,14 +210,26 @@ class Zine {
 			}
 			link = document.createElement('button')
 			img = document.createElement('img')
+
 			this.image = this.canvas.toDataURL(this.filetype)
+
+			if (forPdf) {
+				sheetData = this.canvas.toDataURL('image/jpeg', 0.99) //png too large for pdf
+				this.sheets.push(sheetData)
+			}
+
+			imgAwaiter = this.waitForImgLoad(img)
 			img.id = `img_0`
 			img.src = this.image
 			link.onclick = function () { downloadPage(`img_0`) }
 			link.innerText = `Download page 0`
+
 			sheetsEl.appendChild(link)
 			sheetsEl.appendChild(br)
 			sheetsEl.appendChild(img)
+
+			await imgAwaiter
+
 		} else if (this.type === 'half_page') {
 			for (let i = 0; i < totalPages; i++) {
 				pageAll.push(i)
@@ -254,14 +279,25 @@ class Zine {
 				}
 				link = document.createElement('button')
 				img = document.createElement('img')
-				img.id = `img_${x}`
+
 				this.image = this.canvas.toDataURL(this.filetype)
+
+				if (forPdf) {
+					sheetData = this.canvas.toDataURL('image/jpeg', 0.99) //png too large for pdf
+					this.sheets.push(sheetData)
+				}
+
+				imgAwaiter = this.waitForImgLoad(img)
+				img.id = `img_${x}`
 				img.src = this.image
 				link.onclick = function () { downloadPage(`img_${x}`) }
 				link.innerText = `Download page ${x}`
+
 				sheetsEl.appendChild(link)
 				sheetsEl.appendChild(br)
 				sheetsEl.appendChild(img)
+
+				await imgAwaiter
 			}
 		}
 
@@ -305,20 +341,25 @@ class Zine {
 		const elements = document.querySelectorAll('#sheets img')
 		const type = this.ext === 'jpg' ? 'JPEG' : 'PNG'
 		let datauri
+		let imgData
 
 		try {
-			await this.build()
+			await this.build(true)
 		} catch (err) {
 			console.error(err)
 			alert(`Error building zine`)
 			return false
 		}
 
-		for (let elem of elements) {
-			imgData = element.src
-			pdf.addPage([this.x, this.y], 'landscape')
+		for (let i = 0; i < this.sheets.length; i++) {
+			imgData = this.sheets[i]
+			if (i > 0) {
+				pdf.addPage([this.x, this.y], 'landscape')
+			}
 			pdf.addImage(imgData, type, 0, 0, this.x, this.y)
 		}
+
+		this.sheets = []
 
 		datauri = pdf.output('datauristring')
 		link.download = `${this.name}_${this.type}_${this.paper}_${this.dpi}dpi.pdf`
@@ -544,8 +585,6 @@ function dragndrop () {
 	}
 }
 
-let zine
-
 function main () {
 	const eType = document.getElementById('type')
 	const eDpi = document.getElementById('dpi')
@@ -561,5 +600,4 @@ function main () {
 
 (function () {
 	dragndrop()
-
 })()
