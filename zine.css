@@ -43,6 +43,13 @@ html,body{
 	height: auto;
 }
 .field-row label{
-	width: 60px;
+	width: 70px;
 	text-align: right;
+}
+.field-col:nth-child(3) {
+	padding-left: 30px;
+}
+.field-col {
+	display: table-cell;
+	width: 50%;
 }
