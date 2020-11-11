@@ -10,16 +10,19 @@ html,body{
 	width: -webkit-calc(100vw - 5px);
 	width: -o-calc(100vw - 5px);
 	width: calc(100vw - 5px);
-    height: 100vh;
+    height: -moz-calc(100vh - 10px);
+    height: -webkit-calc(100vh - 10px);
+    height: -o-calc(100vh - 10px);
+    height: calc(100vh - 10px);
     margin: 0 auto;
 }
 #zinemaker .window-wrapper{
 	overflow-y: scroll;
 	/* Firefox */
-	height: -moz-calc(100vh - 14px - 9px);
-	height: -webkit-calc(100vh - 14px - 9px);
-	height: -o-calc(100vh - 14px - 9px);
-	height: calc(100vh - 14px - 9px);
+	height: -moz-calc(100vh - 14px - 9px - 3px);
+	height: -webkit-calc(100vh - 14px - 9px - 3px);
+	height: -o-calc(100vh - 14px - 9px - 3px);
+	height: calc(100vh - 14px - 9px - 3px);
 }
 #zinemaker .overlay{
 	display: none;
