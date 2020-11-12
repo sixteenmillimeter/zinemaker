@@ -2,7 +2,7 @@ const { jsPDF } = window.jspdf
 let zine
 
 class Zine {
-	constructor (type = 'single_page', dpi = 300, paper = '11x8.5', filetype = 'image/png') {
+	constructor (type = 'single_page', dpi = 300, paper = '11x8.5', filetype = 'image/png', vAlign = 'center' ) {
 		const parts = paper.split('x')
 		const x = parts[0]
 		const y = parts[1]
@@ -14,6 +14,7 @@ class Zine {
 		this.filetype = filetype
 		this.ext = this.filetype === 'image/jpeg' ? 'jpg' : 'png'
 		this.name = document.getElementById('filename').value
+		this.vAlign = vAlign
 
 		if (this.name === '') {
 			this.name = 'zine'
@@ -389,6 +390,8 @@ class Zine {
 			let xRatio
 			let yRatio
 			let ratio
+			let hCompare
+			let yOffset = 0
 			
 			img.onload = (function (e) {
 				if (position.flip) {
@@ -401,8 +404,22 @@ class Zine {
 				yRatio = this.yPage / img.height
 				ratio  = Math.min ( xRatio, yRatio )
 
+				if (this.vAlign === 'center') {
+					hCompare = (ratio * img.height)
+					if (hCompare < this.yPage) {
+						yOffset = Math.round((this.yPage - hCompare) / 2)
+					}
+				} else if (this.vAlign === 'top') {
+					yOffset = 0
+				} else if (this.vAlign === 'bottom') {
+					hCompare = (ratio * img.height)
+					if (hCompare < this.yPage) {
+						yOffset = Math.round(this.yPage - hCompare)
+					}
+				}
+
 				this.ctx.drawImage(img, 0, 0, img.width, img.height, 
-					position.x * this.xPage, position.y * this.yPage, img.width * ratio, img.height * ratio )
+					position.x * this.xPage, (position.y * this.yPage) + yOffset, img.width * ratio, img.height * ratio )
 
 				if (position.flip) {
 					this.ctx.restore()
@@ -589,12 +606,14 @@ function main () {
 	const eDpi = document.getElementById('dpi')
 	const ePaper = document.getElementById('paper')
 	const eFiletype = document.getElementById('filetype')
+	const eVAlign = document.getElementById('valign')
 	const type = eType.options[eType.selectedIndex].value
 	const dpi = eDpi.options[eDpi.selectedIndex].value
 	const paper = ePaper.options[ePaper.selectedIndex].value
 	const filetype = eFiletype.options[eFiletype.selectedIndex].value
+	const vAlign = eVAlign.options[eVAlign.selectedIndex].value
 
-	zine = new Zine(type, dpi, paper, filetype)
+	zine = new Zine(type, dpi, paper, filetype, vAlign)
 }
 
 (function () {
