@@ -525,8 +525,7 @@ function downloadTemplate () {
 function downloadPage (id) {
   const img = document.getElementById(id)
   const link = document.createElement('a')
-
-  url = img.src
+  const url = img.src
 
   link.download = `${zine.name}_${zine.type}_${zine.paper}_${zine.dpi}dpi_${id}.${zine.ext}`
   link.href = url
