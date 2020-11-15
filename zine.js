@@ -1,3 +1,5 @@
+/* globals alert,confirm,Image,FileReader,DataTransfer */
+
 'use strict'
 
 const { jsPDF } = window.jspdf
@@ -222,11 +224,15 @@ class Zine {
             try {
               url = await this.readFileAsURL(input)
             } catch (err) {
+              console.error(err)
+              console.trace()
               throw err
             }
             try {
               await this.drawOnCanvas(this.positions[this.type][i], url)
             } catch (err) {
+              console.error(err)
+              console.trace()
               throw err
             }
           }
@@ -290,11 +296,15 @@ class Zine {
               try {
                 url = await this.readFileAsURL(input)
               } catch (err) {
+                console.error(err)
+                console.trace()
                 throw err
               }
               try {
                 await this.drawOnCanvas(this.positions[this.type][side][i], url)
               } catch (err) {
+                console.error(err)
+                console.trace()
                 throw err
               }
             }
@@ -338,7 +348,7 @@ class Zine {
    *****************/
   async download () {
     const link = document.createElement('a')
-    let image
+    let image = null
 
     try {
       await this.build()
@@ -366,10 +376,9 @@ class Zine {
       format: [this.x, this.y]
     }
     const link = document.createElement('a')
-    const pdf = new jsPDF(options)
-    const elements = document.querySelectorAll('#sheets img')
+    const pdf = new jsPDF(options) //eslint-disable-line
     const type = this.ext === 'jpg' ? 'JPEG' : 'PNG'
-    let datauri
+    let datauri = ''
     let imgData
 
     try {
@@ -479,7 +488,7 @@ function template (type = 'single_page', dpi = 300, paper = '11x8.5', filetype =
   const ext = filetype === 'image/jpeg' ? 'jpg' : 'png'
   let width
   let height
-  let image
+  let image = ''
 
   if (type === 'single_page') {
     width = parseFloat(x) * dpi / 4
@@ -535,16 +544,6 @@ function downloadPage (id) {
 /*****************
  *
  *****************/
-function createFileList (file) {
-  const fileList = new FileList()
-  fileList[0] = file
-  fileList.item = index => fileList[index]
-  return fileList
-}
-
-/*****************
- *
- *****************/
 function dragndrop () {
   const dropArea = document.getElementById('zinemaker')
 
@@ -586,12 +585,13 @@ function dragndrop () {
     const fileNames = []
     let cont = false
     let file
-    let len
+    let len = 0
     let count = 0
-    let currentPages
+    let currentPages = 0
     let input
     let page
     let dataTransfer
+
     for (const file of files) {
       fileNames.push(file.name)
     }
@@ -667,4 +667,6 @@ function main () {
 
 (function () {
   dragndrop()
+  document.getElementById('create').addEventListener('click', main, false)
+  document.getElementById('template').addEventListener('click', downloadTemplate, false)
 })()
