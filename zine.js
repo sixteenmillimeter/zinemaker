@@ -5,7 +5,7 @@ class Zine {
   /*****************
    *
    *****************/
-  constructor (type = 'single_page', dpi = 300, paper = '11x8.5', filetype = 'image/png', vAlign = 'center' ) {
+  constructor (type = 'single_page', dpi = 300, paper = '11x8.5', filetype = 'image/png', vAlign = 'center') {
     const parts = paper.split('x')
     const x = parts[0]
     const y = parts[1]
@@ -28,7 +28,6 @@ class Zine {
     this.x = parseFloat(x) * dpi
     this.y = parseFloat(y) * dpi
 
-
     if (this.type === 'single_page') {
       this.xPage = this.x / 4
       this.yPage = this.y / 2
@@ -38,7 +37,7 @@ class Zine {
     }
 
     this.canvas = document.createElement('canvas')
-    this.canvas.width  = this.x
+    this.canvas.width = this.x
     this.canvas.height = this.y
 
     this.ctx = this.canvas.getContext('2d')
@@ -50,30 +49,31 @@ class Zine {
     this.image = null
 
     this.positions = {
-      'single_page' : [
-        { x : 3, y : 1 }, //1 - Front
-        { x : -4, y : -1, flip : true }, //2
-        { x : -3, y : -1, flip : true }, //3
-        { x : -2, y : -1, flip : true }, //4
-        { x : -1, y : -1, flip : true }, //5
-        { x : 0, y : 1 }, //6
-        { x : 1, y : 1 }, //7
-        { x : 2, y : 1 } //8 - Back
+      single_page: [
+        { x: 3, y: 1 }, // 1 - Front
+        { x: -4, y: -1, flip: true }, // 2
+        { x: -3, y: -1, flip: true }, // 3
+        { x: -2, y: -1, flip: true }, // 4
+        { x: -1, y: -1, flip: true }, // 5
+        { x: 0, y: 1 }, // 6
+        { x: 1, y: 1 }, // 7
+        { x: 2, y: 1 } // 8 - Back
       ],
-      'half_page' : [
+      half_page: [
         [
-          { x : 0, y : 0 },
-          { x : 1, y : 0 }
+          { x: 0, y: 0 },
+          { x: 1, y: 0 }
         ],
         [
-          { x : -2, y : -1, flip : true },
-          { x : -1, y : -1, flip : true }
+          { x: -2, y: -1, flip: true },
+          { x: -1, y: -1, flip: true }
         ]
       ]
     }
 
     this.layoutPages()
   }
+
   /*****************
    *
    *****************/
@@ -112,16 +112,17 @@ class Zine {
 
     for (let i = 0; i < pages; i++) {
       this.layoutPage(i)
-    }       
-
+    }
   }
+
   /*****************
    *
    *****************/
   addPage () {
-    let pos = this.countPages()
+    const pos = this.countPages()
     this.layoutPage(pos)
   }
+
   /*****************
    *
    *****************/
@@ -135,7 +136,7 @@ class Zine {
 
     el.setAttribute('type', 'file')
     el.setAttribute('id', `page_${i}`)
-    el.setAttribute('accept', 'image/x-png,image/jpeg');
+    el.setAttribute('accept', 'image/x-png,image/jpeg')
 
     if (i === 0 && this.type === 'single_page') {
       label.innerText = 'Front'
@@ -144,28 +145,31 @@ class Zine {
     } else {
       label.innerText = `${i + 1}`
     }
-    
+
     div.appendChild(label)
     div.appendChild(el)
-    
+
     pages.appendChild(div)
   }
+
   /*****************
    *
    *****************/
   countPages () {
     return document.querySelectorAll('input[type=file]').length
   }
+
   /*****************
    *
    *****************/
   async waitForImgLoad (img) {
     return new Promise((resolve, reject) => {
-      img.onload = function() { 
+      img.onload = function () {
         return resolve()
       }
     })
   }
+
   /*****************
    *
    *****************/
@@ -173,7 +177,7 @@ class Zine {
     const sheetsEl = document.getElementById('sheets')
     const br = document.createElement('br')
     let totalPages = this.countPages()
-    let pages = this.type === 'single_page' ? 8 : 4
+    const pages = this.type === 'single_page' ? 8 : 4
     let sheets = this.type === 'single_page' ? 1 : 1
     let cont
     let page
@@ -181,8 +185,8 @@ class Zine {
     let url
     let img
     let count = 0
-    let pageAll = []
-    let pageMap = []
+    const pageAll = []
+    const pageMap = []
     let halfPage = 0
     let link
     let side = 0
@@ -191,7 +195,7 @@ class Zine {
 
     if (this.type === 'half_page') {
       totalPages = Math.round(Math.ceil(totalPages / 4) * 4)
-      sheets = Math.round(totalPages / 4) * 2 //front and back
+      sheets = Math.round(totalPages / 4) * 2 // front and back
     }
 
     console.log(`sheets: ${sheets}`)
@@ -207,7 +211,7 @@ class Zine {
           page = input.value
           if (page === null || page === '') {
             if (typeof cont === 'undefined') {
-              cont = confirm(`Detected blank pages. Continue to build zine?`)
+              cont = confirm('Detected blank pages. Continue to build zine?')
               if (!cont) {
                 throw new Error('Blank pages, cancelling build')
               }
@@ -233,22 +237,21 @@ class Zine {
       this.image = this.canvas.toDataURL(this.filetype)
 
       if (forPdf) {
-        sheetData = this.canvas.toDataURL('image/jpeg', 0.99) //png too large for pdf
+        sheetData = this.canvas.toDataURL('image/jpeg', 0.99) // png too large for pdf
         this.sheets.push(sheetData)
       }
 
       imgAwaiter = this.waitForImgLoad(img)
-      img.id = `img_0`
+      img.id = 'img_0'
       img.src = this.image
-      link.onclick = function () { downloadPage(`img_0`) }
-      link.innerText = `Download page 0`
+      link.onclick = function () { downloadPage('img_0') }
+      link.innerText = 'Download page 0'
 
       sheetsEl.appendChild(link)
       sheetsEl.appendChild(br)
       sheetsEl.appendChild(img)
 
       await imgAwaiter
-
     } else if (this.type === 'half_page') {
       for (let i = 0; i < totalPages; i++) {
         pageAll.push(i)
@@ -265,9 +268,9 @@ class Zine {
         }
       }
       for (let x = 0; x < sheets; x++) {
-        //reset to white
+        // reset to white
         this.ctx.fillRect(0, 0, this.x, this.y)
-        side = x % 2 
+        side = x % 2
         for (let i = 0; i < pages / 2; i++) {
           console.log(`page_${pageMap[count]}`)
           input = document.getElementById(`page_${pageMap[count]}`)
@@ -276,7 +279,7 @@ class Zine {
             page = input.value
             if (page === null || page === '') {
               if (typeof cont === 'undefined') {
-                cont = confirm(`Detected blank pages. Continue to build zine?`)
+                cont = confirm('Detected blank pages. Continue to build zine?')
                 if (!cont) {
                   throw new Error('Blank pages, cancelling build')
                 }
@@ -302,7 +305,7 @@ class Zine {
         this.image = this.canvas.toDataURL(this.filetype)
 
         if (forPdf) {
-          sheetData = this.canvas.toDataURL('image/jpeg', 0.99) //png too large for pdf
+          sheetData = this.canvas.toDataURL('image/jpeg', 0.99) // png too large for pdf
           this.sheets.push(sheetData)
         }
 
@@ -320,7 +323,7 @@ class Zine {
       }
     }
 
-    //draw lines
+    // draw lines
 
     this.name = document.getElementById('filename').value
 
@@ -340,7 +343,7 @@ class Zine {
       await this.build()
     } catch (err) {
       console.error(err)
-      alert(`Error building zine`)
+      alert('Error building zine')
       return false
     }
 
@@ -357,9 +360,9 @@ class Zine {
    *****************/
   async downloadPDF () {
     const options = {
-      orientation : 'landscape',
-      unit : 'px',
-      format : [this.x, this.y]
+      orientation: 'landscape',
+      unit: 'px',
+      format: [this.x, this.y]
     }
     const link = document.createElement('a')
     const pdf = new jsPDF(options)
@@ -372,7 +375,7 @@ class Zine {
       await this.build(true)
     } catch (err) {
       console.error(err)
-      alert(`Error building zine`)
+      alert('Error building zine')
       return false
     }
 
@@ -397,7 +400,7 @@ class Zine {
    *
    *****************/
   async readFileAsURL (input) {
-    return new Promise ((resolve, reject) => {
+    return new Promise((resolve, reject) => {
       let reader
       if (input.files && input.files[0]) {
         reader = new FileReader()
@@ -415,24 +418,24 @@ class Zine {
    *
    *****************/
   async drawOnCanvas (position, url) {
-    return new Promise ((resolve, reject) => {
-      const img = new Image
+    return new Promise((resolve, reject) => {
+      const img = new Image()
       let xRatio
       let yRatio
       let ratio
       let hCompare
       let yOffset = 0
-      
-      img.onload = (function (e) {
+
+      img.onload = function (e) {
         if (position.flip) {
           this.ctx.save()
           this.ctx.rotate(Math.PI)
         }
-        
-        //this.ctx.drawImage(img, position.x * this.xPage, position.y * this.yPage)
+
+        // this.ctx.drawImage(img, position.x * this.xPage, position.y * this.yPage)
         xRatio = this.xPage / img.width
         yRatio = this.yPage / img.height
-        ratio  = Math.min ( xRatio, yRatio )
+        ratio = Math.min(xRatio, yRatio)
 
         if (this.vAlign === 'center') {
           hCompare = (ratio * img.height)
@@ -448,15 +451,15 @@ class Zine {
           }
         }
 
-        this.ctx.drawImage(img, 0, 0, img.width, img.height, 
-          position.x * this.xPage, (position.y * this.yPage) + yOffset, img.width * ratio, img.height * ratio )
+        this.ctx.drawImage(img, 0, 0, img.width, img.height,
+          position.x * this.xPage, (position.y * this.yPage) + yOffset, img.width * ratio, img.height * ratio)
 
         if (position.flip) {
           this.ctx.restore()
         }
 
         return resolve(true)
-      }).bind(this)
+      }.bind(this)
 
       img.src = url
     })
@@ -485,7 +488,7 @@ function template (type = 'single_page', dpi = 300, paper = '11x8.5', filetype =
     height = parseFloat(y) * dpi
   }
 
-  canvas.width  = width
+  canvas.width = width
   canvas.height = height
 
   ctx.scale(1, 1)
@@ -564,15 +567,15 @@ function dragndrop () {
 
   dropArea.addEventListener('drop', handleDrop, false)
 
-  function highlight(e) {
+  function highlight (e) {
     dropArea.classList.add('highlight')
   }
 
-  function unhighlight(e) {
+  function unhighlight (e) {
     dropArea.classList.remove('highlight')
   }
 
-  function handleDrop(e) {
+  function handleDrop (e) {
     const dt = e.dataTransfer
     const files = dt.files
     unhighlight()
@@ -589,10 +592,10 @@ function dragndrop () {
     let input
     let page
     let dataTransfer
-    for (let file of files) {
+    for (const file of files) {
       fileNames.push(file.name)
     }
-    
+
     fileNames.sort()
 
     len = files.length
@@ -617,16 +620,15 @@ function dragndrop () {
       if (input) {
         page = input.value
         if (page === null || page === '') {
-          //empty
+          // empty
         } else {
           count = i + 1
         }
       }
-
     }
-    for (let name of fileNames) {
-      file = [...files].find( el => el.name === name)
-      
+    for (const name of fileNames) {
+      file = [...files].find(el => el.name === name)
+
       input = document.getElementById(`page_${count}`)
 
       if (!input && zine.type === 'half_page') {
