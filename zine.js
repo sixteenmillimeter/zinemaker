@@ -1,3 +1,5 @@
+'use strict'
+
 const { jsPDF } = window.jspdf
 let zine
 
@@ -86,7 +88,6 @@ class Zine {
     const download = document.createElement('button')
     const pdf = document.createElement('button')
     const add = document.createElement('button')
-    const br = document.createElement('br')
 
     pagesElement.innerHTML = ''
     actionElement.innerHTML = ''
