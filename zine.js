@@ -20,6 +20,7 @@ class Zine {
     this.dpi = dpi
     this.filetype = filetype
     this.ext = this.filetype === 'image/jpeg' ? 'jpg' : 'png'
+    this.mimes = 'image/png,image/x-png,image/jpeg'
     this.name = document.getElementById('filename').value
     this.vAlign = vAlign
 
@@ -139,7 +140,7 @@ class Zine {
 
     el.setAttribute('type', 'file')
     el.setAttribute('id', `page_${i}`)
-    el.setAttribute('accept', 'image/x-png,image/jpeg')
+    el.setAttribute('accept', this.mimes)
 
     if (i === 0 && this.type === 'single_page') {
       label.innerText = 'Front'
